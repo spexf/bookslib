@@ -1,0 +1,184 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.text-center { text-align: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.mt-10 { margin-top: 10px; }
+
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.login-form {
+  background: #ffffff;
+  border: 2px solid #000000;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  border-bottom: 2px solid #000000;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+}
+
+.logo {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.section-box {
+  border: 2px solid #000000;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+input, select {
+  padding: 10px;
+  border: 1px solid #000000;
+  font-size: 1rem;
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-width: 2px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid #000000;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #333333;
+}
+
+.btn-outline {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-outline:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-danger:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.flex-form {
+  display: flex;
+  gap: 10px;
+}
+
+.flex-form input {
+  flex: 1;
+}
+
+.books-list {
+  list-style-type: none;
+}
+
+.book-item {
+  border: 1px solid #000000;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.book-title {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.book-author {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.reviews-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #000000;
+}
+
+.reviews-title {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.reviews-list {
+  list-style-type: none;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.review-item {
+  margin-bottom: 5px;
+  padding-left: 10px;
+  border-left: 2px solid #000000;
+}
+.btn-link {
+  background: none;
+  border: none;
+  color: #000000;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+  font-weight: bold;
+}
+
+.btn-link:hover {
+  opacity: 0.7;
+}
