@@ -85,7 +85,7 @@ func main() {
 
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/register", registerHandler)
-	
+
 	log.Println("Auth service running on port 8081")
 	http.ListenAndServe(":8081", nil)
 }
