@@ -107,7 +107,8 @@ pipeline{
         stage("Deploy Temporary Database") {
             steps {
                 script {
-                    sh "docker run --rm -d --security-opt label=level:s0:c1022,c1023 --name db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres -v ${WORKSPACE}/init.sql:/docker-entrypoint-initdb.d/init.sql postgres:latest "
+                    sh "docker run --rm -d --security-opt label=level:s0:c1022,c1023 --name db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres postgres:latest "
+                    sh "docker exec -i db psql -U postgres -d postgres < ${WORKSPACE}/init.sql"
                 }
             }
         }
