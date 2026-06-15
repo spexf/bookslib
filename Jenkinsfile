@@ -46,21 +46,21 @@ pipeline{
                     results.results.each { finding ->
                         findingsText += """
                         ### Rule
-${finding.check_id}
+                        ${finding.check_id}
 
-### Severity
-${finding.extra.severity}
+                        ### Severity
+                        ${finding.extra.severity}
 
-### File
-${finding.path}
+                        ### File
+                        ${finding.path}
 
-### Message
-${finding.extra.message}
+                        ### Message
+                        ${finding.extra.message}
 
-### Line
-${finding.start.line}
+                        ### Line
+                        ${finding.start.line}
 
----
+                        ---
                     
                     """
                         
@@ -68,16 +68,16 @@ ${finding.start.line}
                     writeFile(
                         file: 'issue_body.md',
                         text: """
-# 🚨 Semgrep Security Scan Failed
+                        # 🚨 Semgrep Security Scan Failed
 
-Ditemukan vulnerability / bug / issue pada hasil scanning.
-## Findings
-${findingsText}
+                        Ditemukan vulnerability / bug / issue pada hasil scanning.
+                        ## Findings
+                        ${findingsText}
 
-Repository: ${env.GITHUB_REPO}
+                        Repository: ${env.GITHUB_REPO}
 
-Build: ${env.BUILD_URL}
-"""
+                        Build: ${env.BUILD_URL}
+                        """
                         )
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
@@ -257,7 +257,7 @@ Build: ${env.BUILD_URL}
             }
         }
     }
-        }
+        
     post{
         always{
             echo "========always========"
@@ -269,5 +269,5 @@ Build: ${env.BUILD_URL}
             echo "FAILED"
         }
     }
-}
+
 }
