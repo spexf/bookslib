@@ -1,6 +1,8 @@
 pipeline{
     agent any
     environment {
+        GITHUB_API = "https://api.github.com"
+        GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
         COMMIT_ID = ""
     }
