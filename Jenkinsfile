@@ -41,7 +41,7 @@ pipeline{
                     def results = readJSON file: 'semgrep-results.json'
                     int totalFindings = results.results.size()
                     echo "Total findings: ${totalFindings}"
-                    if (totalFindings > 10){
+                    if (totalFindings > 10){    // TODO change this later
                         def findingsText = ""
                         results.results.each { finding ->
                             findingsText += """
@@ -100,6 +100,14 @@ pipeline{
                     } else {
                         echo "Tidak ditemukan vuln atau bug"
                     }
+                }
+            }
+        }
+
+        stage("Deploy Temporary Database") {
+            steps {
+                script {
+                    sh "docker --rm run -d --name db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres -v /init.sql:/docker-entrypoint-initdb.d/init.sql postgresql:latest "
                 }
             }
         }
@@ -256,7 +264,10 @@ pipeline{
         
     post{
         always{
-            echo "========always========"
+            echo "Stopping Temporary Database"
+            script {
+                sh "docker stop db"
+            }
         }
         success{
             echo "SUCCESS" 

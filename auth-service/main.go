@@ -71,7 +71,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	var err error
-	db, err = sql.Open("postgres", os.Getenv("DB_DSN"))
+	db, err = sql.Open("postgres://postgres:secret@db:5432/postgres?sslmode=disable", os.Getenv("DB_DSN"))
 	if err != nil {
 		log.Fatal(err)
 	}
