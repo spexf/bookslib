@@ -20,8 +20,8 @@ pipeline{
                 sh """
                 docker run --rm \
                     --security-opt label=level:s0:c1022,c1023 \
-                    -v "/opt/jenkins/data/workspace/Scanning:/src" \
-                    -v "/opt/jenkins/data/workspace/Scanning:/output":rw \
+                    -v "/opt/jenkins/data/workspace/Bookslib_${BRANCH_NAME}:/src" \
+                    -v "/opt/jenkins/data/workspace/Bookslib_${BRANCH_NAME}:/output":rw \
                     -w /src \
                     harbor.riq-homelab.local:5000/semgrep-custom:latest \
                     semgrep scan \
