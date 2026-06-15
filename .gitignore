@@ -1,0 +1,4 @@
+.env
+books-service/obj*
+books-service/BooksLib.Tests/obj*
+KubernetesConfig
