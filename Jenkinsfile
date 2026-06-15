@@ -108,7 +108,16 @@ pipeline{
             steps {
                 script {
                     sh "docker run --rm -d --security-opt label=level:s0:c1022,c1023 --name db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres postgres:latest "
-                    sh "docker exec -i db psql -U postgres -d postgres < ${WORKSPACE}/init.sql"
+                    sh '''
+                    echo "Waiting for PostgreSQL to be ready..."
+                    until docker exec db pg_isready -U postgres -d postgres; do
+                        echo "Postgres is still booting up... waiting 2 seconds"
+                        sleep 2
+                    done
+                    echo "Postgres is ready! Initializing database..."
+                    docker exec -i db psql -U postgres -d postgres < ./init.sql
+                    
+                    '''
                 }
             }
         }
