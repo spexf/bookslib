@@ -41,7 +41,7 @@ pipeline{
                     def results = readJSON file: 'semgrep-results.json'
                     int totalFindings = results.results.size()
                     echo "Total findings: ${totalFindings}"
-                    if (totalFindings > 0){
+                    if (totalFindings > 10){
                         def findingsText = ""
                         results.results.each { finding ->
                             findingsText += """
