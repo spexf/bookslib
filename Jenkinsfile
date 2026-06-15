@@ -31,9 +31,9 @@ pipeline{
                         --output /output/semgrep-results.json \
                         .
             """
-                }
+                
             }
-        }
+        
 
         stage("SAST Result Analysis") {
             steps {
@@ -257,6 +257,7 @@ Build: ${env.BUILD_URL}
             }
         }
     }
+        }
     post{
         always{
             echo "========always========"
@@ -268,4 +269,5 @@ Build: ${env.BUILD_URL}
             echo "FAILED"
         }
     }
+}
 }
