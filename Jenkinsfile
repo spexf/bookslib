@@ -13,7 +13,6 @@ pipeline{
                     echo "Short Commit ID yang didapat: ${COMMIT_ID}"
                 }
             }
-            
         }
 
         stage("SAST Scanning") {
@@ -31,75 +30,74 @@ pipeline{
                         --output /output/semgrep-results.json \
                         .
             """
-                
             }
-        
+        }
 
         stage("SAST Result Analysis") {
             steps {
                 script {
-                def results = readJSON file: 'semgrep-results.json'
-                int totalFindings = results.results.size()
-                echo "Total findings: ${totalFindings}"
-                if (totalFindings > 0){
-                    def findingsText = ""
-                    results.results.each { finding ->
-                        findingsText += """
-                        ### Rule
-                        ${finding.check_id}
+                    def results = readJSON file: 'semgrep-results.json'
+                    int totalFindings = results.results.size()
+                    echo "Total findings: ${totalFindings}"
+                    if (totalFindings > 0){
+                        def findingsText = ""
+                        results.results.each { finding ->
+                            findingsText += """
+                            ### Rule
+                            ${finding.check_id}
 
-                        ### Severity
-                        ${finding.extra.severity}
+                            ### Severity
+                            ${finding.extra.severity}
 
-                        ### File
-                        ${finding.path}
+                            ### File
+                            ${finding.path}
 
-                        ### Message
-                        ${finding.extra.message}
+                            ### Message
+                            ${finding.extra.message}
 
-                        ### Line
-                        ${finding.start.line}
+                            ### Line
+                            ${finding.start.line}
 
-                        ---
-                    
-                    """
+                            ---
                         
-                    }
-                    writeFile(
-                        file: 'issue_body.md',
-                        text: """
-                        # 🚨 Semgrep Security Scan Failed
-
-                        Ditemukan vulnerability / bug / issue pada hasil scanning.
-                        ## Findings
-                        ${findingsText}
-
-                        Repository: ${env.GITHUB_REPO}
-
-                        Build: ${env.BUILD_URL}
                         """
+                        }
+                        writeFile(
+                            file: 'issue_body.md',
+                            text: """
+                            # 🚨 Semgrep Security Scan Failed
+
+                            Ditemukan vulnerability / bug / issue pada hasil scanning.
+                            ## Findings
+                            ${findingsText}
+
+                            Repository: ${env.GITHUB_REPO}
+
+                            Build: ${env.BUILD_URL}
+                            """
                         )
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-                            ]) {
-                                sh '''
-                                ISSUE_TITLE="🚨 Semgrep Security Findings - Build #${BUILD_NUMBER}"
+                        ]) {
+                            sh '''
+                            ISSUE_TITLE="🚨 Semgrep Security Findings - Build #${BUILD_NUMBER}"
 
-                                ISSUE_BODY=$(cat issue_body.md | jq -Rs .)
+                            ISSUE_BODY=$(cat issue_body.md | jq -Rs .)
 
-                                curl -s -X POST \
-                                  -H "Authorization: token ${GITHUB_TOKEN}" \
-                                  -H "Accept: application/vnd.github+json" \
-                                  ${GITHUB_API}/repos/${GITHUB_REPO}/issues \
-                                  -d "{
-                                    \\"title\\": \\"${ISSUE_TITLE}\\",
-                                    \\"body\\": ${ISSUE_BODY}
-                                  }"
+                            curl -s -X POST \
+                              -H "Authorization: token ${GITHUB_TOKEN}" \
+                              -H "Accept: application/vnd.github+json" \
+                              ${GITHUB_API}/repos/${GITHUB_REPO}/issues \
+                              -d "{
+                                \\"title\\": \\"${ISSUE_TITLE}\\",
+                                \\"body\\": ${ISSUE_BODY}
+                              }"
                             '''
-                            }
-                            error("Semgrep menemukan vulnerability/bug. Pipelin gagal")
-                } else {
-                    echo "Tidak ditemukan vuln atau bug"
+                        }
+                        error("Semgrep menemukan vulnerability/bug. Pipelin gagal")
+                    } else {
+                        echo "Tidak ditemukan vuln atau bug"
+                    }
                 }
             }
         }
@@ -122,8 +120,6 @@ pipeline{
                             script{
                                 echo "Starting test for Book Service"
                                 sh "docker build --target test -t book-service-test ."
-
-                                
                             }
                         }
                     }
@@ -134,8 +130,6 @@ pipeline{
                             script{
                                 echo "Starting test for Review Service"
                                 sh "docker build --target test -t review-service-test ."
-
-                                
                             }
                         }
                     }
@@ -228,28 +222,28 @@ pipeline{
             parallel {
                 stage("Deploying Auth Service"){
                     steps{
-                            script {
+                        script {
                             sh "echo Deploying ... "
                         }
                     }
                 }
                 stage("Deploying Book Service"){
                     steps{
-                            script {
+                        script {
                             sh "echo Deploying ... "
                         }
                     }
                 }
                 stage("Deploying Review Service"){
                     steps{
-                            script {
+                        script {
                             sh "echo Deploying ... "
                         }
                     }
                 }
                 stage("Deploying Frontend"){
                     steps{
-                            script {
+                        script {
                             sh "echo Deploying ... "
                         }
                     }
@@ -269,5 +263,4 @@ pipeline{
             echo "FAILED"
         }
     }
-
 }
