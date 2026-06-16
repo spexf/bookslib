@@ -147,70 +147,6 @@ pipeline{
                 }
             }
         }
-        stage('Trivy - Image Scan') {
-            parallel {
-                stage("Auth Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            auth-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Book Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            book-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Review Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            review-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Frontend Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            frontend:${COMMIT_ID}
-                        """
-                    }
-                }
-            }
-        }
         stage("Pushing Artifact"){
             parallel {
                 stage("Deploying Auth Service"){
@@ -239,6 +175,70 @@ pipeline{
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}"
                         }
+                    }
+                }
+            }
+        }
+        stage('Trivy - Image Scan') {
+            parallel {
+                stage("Auth Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Book Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Review Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Frontend Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
+                        """
                     }
                 }
             }
@@ -279,9 +279,14 @@ pipeline{
         
     post{
         always{
-            echo "Stopping Temporary Database"
+            echo "Cleaning Images"
             script {
-                sh "docker stop db"
+                sh '''
+                docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                '''
             }
         }
         success{
@@ -289,6 +294,26 @@ pipeline{
         }
         failure{
             echo "FAILED"
+        }
+
+        
+    }
+
+    finally {
+        script {
+            sh "echo 'Cleaning Images . . .' "
+            sh '''
+                docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                '''
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/auth-service --tag ${COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/book-service --tag ${COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/review-service --tag ${COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/frontend --tag ${COMMIT_ID}"
+            sh "echo 'Cleaning Images . . .' "
+
         }
     }
 }
