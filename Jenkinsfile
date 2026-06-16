@@ -286,6 +286,7 @@ pipeline{
         stage("Deploy Development"){
             when {
                 branch 'development'
+                expression { currentBuild.currentResult == 'SUCCESS' }
             }
             parallel {
                 stage("Deploying Auth Service"){
@@ -333,6 +334,7 @@ pipeline{
         stage("Deploy Production"){
             when {
                 branch 'main'
+                expression { currentBuild.currentResult == 'SUCCESS' }
             }
             
             parallel {
