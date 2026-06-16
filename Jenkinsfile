@@ -333,7 +333,27 @@ pipeline{
                 POSTGRES_DB = credentials('postgres-db')
             }
             steps {
-                sh "docker-compose -f docker-compose.yaml up -d"
+                sh '''
+                    HOST_WS=$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
+                    
+                    # Pastiin init-db.sh ada di workspace
+                    cat > ${WORKSPACE}/init-db.sh << 'EOF'
+#!/bin/bash
+set -e
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    CREATE DATABASE auth_db;
+    CREATE DATABASE books_db;
+    CREATE DATABASE reviews_db;
+EOSQL
+EOF
+                    chmod +x ${WORKSPACE}/init-db.sh
+
+                    # Down dulu biar volume keapus dan init script ke-trigger
+                    docker-compose -f docker-compose.yaml down -v
+
+                    # Up dengan HOST_WS sebagai base path untuk volume mount
+                    HOST_WS=${HOST_WS} docker-compose -f docker-compose.yaml up -d
+                '''
             }
         }
     }
