@@ -140,7 +140,7 @@ pipeline{
                     steps{
                         dir('frontend'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -173,7 +173,7 @@ pipeline{
                 stage("Pushing Frontend"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID}"
                         }
                     }
                 }
@@ -227,7 +227,7 @@ pipeline{
         //             --ignore-unfixed \
         //             --format table \
         //             --image-src remote \
-        //             ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
+        //             ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
         //         """
         //     }        
 
@@ -335,7 +335,7 @@ pipeline{
                     docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
                     ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID} \
                     ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
-                    ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                    ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID} -f
                     '''
             }
         }
