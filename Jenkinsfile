@@ -340,13 +340,17 @@ pipeline{
             }
         }
         success{
-            echo "SUCCESS" 
-            echo "CLEANING REGISTRY..."
-            sh "/var/jenkins_home/clear-regisrty-images.sh auth-service ${env.COMMIT_ID}"
-            sh "/var/jenkins_home/clear-regisrty-images.sh book-service ${env.COMMIT_ID}"
-            sh "/var/jenkins_home/clear-regisrty-images.sh review-service ${env.COMMIT_ID}"
-            sh "/var/jenkins_home/clear-regisrty-images.sh frontend ${env.COMMIT_ID}"
-            echo "REGISTRY CLEANING COMPLETE"
+            echo "SUCCESS"
+            script {
+                if (env.BRANCH_NAME != 'development' && env.BRANCH_NAME != 'main') {
+                    echo "CLEANING REGISTRY..."
+                    sh "/var/jenkins_home/clear-regisrty-images.sh auth-service ${env.COMMIT_ID}"
+                    sh "/var/jenkins_home/clear-regisrty-images.sh book-service ${env.COMMIT_ID}"
+                    sh "/var/jenkins_home/clear-regisrty-images.sh review-service ${env.COMMIT_ID}"
+                    sh "/var/jenkins_home/clear-regisrty-images.sh frontend ${env.COMMIT_ID}"
+                    echo "REGISTRY CLEANING COMPLETE"
+                }
+            }
         }
         failure{
             echo "FAILED"
