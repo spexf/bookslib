@@ -282,42 +282,42 @@ pipeline{
             }
             {
                 parallel {
-                stage("Deploying Auth Service"){
-                    steps{
-                        withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('auth-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
-                        }}
+                    stage("Deploying Auth Service"){
+                        steps{
+                            withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('auth-service'){
+                                sh """
+                                    sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
+                                """
+                            }}
+                        }
                     }
-                }
-                stage("Deploying Book Service"){
-                    steps{
-                        withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('books-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
-                        }}
+                    stage("Deploying Book Service"){
+                        steps{
+                            withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('books-service'){
+                                sh """
+                                    sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
+                                """
+                            }}
+                        }
                     }
-                }
-                stage("Deploying Review Service"){
-                    steps{
-                        withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('reviews-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
-                        }}
+                    stage("Deploying Review Service"){
+                        steps{
+                            withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('reviews-service'){
+                                sh """
+                                    sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
+                                """
+                            }}
+                        }
                     }
-                }
-                stage("Deploying Frontend"){
-                    steps{
-                        withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('frontend'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
-                        }}
+                    stage("Deploying Frontend"){
+                        steps{
+                            withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){dir('frontend'){
+                                sh """
+                                    sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
+                                """
+                            }}
+                        }
                     }
-                }
                 }
             }
         }
