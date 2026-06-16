@@ -332,8 +332,8 @@ pipeline{
                 POSTGRES_DB = credentials('postgres-db')
             }
             steps {
-                sh "docker-compose ${env.WORKSPACE}/docker-compose.yaml down"
-                sh "docker-compose ${env.WORKSPACE}/docker-compose.yaml up -d"
+                sh "docker-compose -f ${env.WORKSPACE}/docker-compose.yaml down"
+                sh "docker-compose -f ${env.WORKSPACE}/docker-compose.yaml up -d"
             }
         }
     }
