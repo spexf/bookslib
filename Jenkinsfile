@@ -5,6 +5,7 @@ pipeline{
         GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
         COMMIT_ID = ""
+        CONTAINER_SOCK = "/run/user/1001/podman/podman.sock"
     }
     stages{
         stage("Checkout"){
@@ -104,68 +105,8 @@ pipeline{
             }
         }
 
-        stage("Deploy Temporary Database") {
-            steps {
-                script {
-                    sh "docker run --rm -d --security-opt label=level:s0:c1022,c1023 --name db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=postgres postgres:latest "
-                    sh '''
-                    echo "Waiting for PostgreSQL to be ready..."
-                    until docker exec db pg_isready -U postgres -d postgres; do
-                        echo "Postgres is still booting up... waiting 2 seconds"
-                        sleep 2
-                    done
-                    echo "Postgres is ready! Initializing database..."
-                    docker exec -i db psql -U postgres -d postgres < ./init.sql
-                    
-                    '''
-                }
-            }
-        }
 
-        stage("Application Testing") {
-            parallel {
-                stage("Testing Auth Service"){
-                    steps{
-                        dir('auth-service'){
-                            script{
-                                echo "Starting test for Auth Service"
-                                sh "docker build --target test -t auth-service-test ."
-                            }
-                        }
-                    }
-                }
-                stage("Book Service"){
-                    steps{
-                        dir('books-service'){
-                            script{
-                                echo "Starting test for Book Service"
-                                sh "docker build --target test -t book-service-test ."
-                            }
-                        }
-                    }
-                }
-                stage("Review Service"){
-                    steps{
-                        dir('reviews-service'){
-                            script{
-                                echo "Starting test for Review Service"
-                                sh "docker build --target test -t review-service-test ."
-                            }
-                        }
-                    }
-                }
-                stage("Frontend Service"){
-                    steps{
-                        dir('frontend'){
-                            script{
-                                echo "Starting test for Frontend"
-                                sh "docker build --target test -t frontend-test ."    
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
         stage("Application Building") {
             parallel {
                 stage("Building Auth Service"){
@@ -202,6 +143,70 @@ pipeline{
                                 sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} ."
                             }
                         }
+                    }
+                }
+            }
+        }
+        stage('Trivy - Image Scan') {
+            parallel {
+                stage("Auth Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            auth-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Book Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            book-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Review Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            review-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Frontend Service Image Scan"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v ${CONTAINER_SOCK}:/var/run/docker.sock \
+                            -v trivy-cache:/root/.cache/ \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format table \
+                            frontend:${COMMIT_ID}
+                        """
                     }
                 }
             }
