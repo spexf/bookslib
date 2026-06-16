@@ -7,7 +7,7 @@ pipeline{
         GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
         CONTAINER_SOCK = "/run/user/1001/podman/podman.sock"
-
+        HOST_WS = sh(script: "echo '${WORKSPACE}' | sed 's|/var/jenkins_home|/opt/jenkins/data|'", returnStdout: true).trim()
     }
     stages{
         stage("Checkout"){
@@ -23,12 +23,10 @@ pipeline{
 //         stage("SAST Scanning") {
 //             steps {
 //                 sh """
-//                     HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
-
 //                     docker run --rm \\
 //                         --security-opt label=level:s0:c1022,c1023 \\
-//                         -v "\${HOST_WS}:/src" \\
-//                         -v "\${HOST_WS}:/output:rw" \\
+//                         -v "${HOST_WS}:/src" \\
+//                         -v "${HOST_WS}:/output:rw" \\
 //                         -w /src \\
 //                         harbor.riq-homelab.local:5000/semgrep-custom:latest \\
 //                         semgrep scan \\
@@ -180,66 +178,81 @@ pipeline{
             }
         }
         stage("Trivy Checking"){
-            steps {
-                sh """
-                HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
+            parallel {
+                stage("Testing Auth Service Images"){
+                    steps {
+                        sh """
+                                docker run --rm \
+                                -v "${HOST_WS}:/output:z" \
+                                -v trivy-cache:/root/.cache/ \
+                                -e TRIVY_INSECURE=true \
+                                aquasec/trivy:latest image \
+                                --severity HIGH,CRITICAL \
+                                --exit-code 1 \
+                                --ignore-unfixed \
+                                --format json \
+                                --output /output/auth-service-${COMMIT_ID}.json \
+                                --image-src remote \
+                                ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+                            """
+                    }
+                }
+                stage("Testing Book Service Images"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/book-service-${COMMIT_ID}.json \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+                        """
 
-                    docker run --rm \
-                    -v "\${HOST_WS}:/output:z" \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format json \
-                    --output /output/auth-service-${COMMIT_ID}.json \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -v "\${HOST_WS}:/output:z" \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format json \
-                    --output /output/book-service-${COMMIT_ID}.json \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -v "\${HOST_WS}:/output:z" \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format json \
-                    --output /output/review-service-${COMMIT_ID}.json \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -v "\${HOST_WS}:/output:z" \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format json \
-                    --output /output/react-frontend-${COMMIT_ID}.json \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
-                """
-            }        
+                    }
+                }
+                stage("Testing Review Service Images"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/review-service-${COMMIT_ID}.json \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+                        """
+                    }
+                }
+                stage("Testing React Frontend Images"){
+                    steps {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --exit-code 1 \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/react-frontend-${COMMIT_ID}.json \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
+                        """
+                    }
+                }
+            } 
 
         }
         stage("Deploy Development"){
