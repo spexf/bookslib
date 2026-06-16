@@ -236,6 +236,7 @@ pipeline{
             when {
                 branch 'development'
             }
+            withKubeConfig([CredentialsId: 'kubeconfig-riq-homelab']){
             parallel {
                 stage("Deploying Auth Service"){
                     steps{
@@ -273,13 +274,15 @@ pipeline{
                         }
                     }
                 }
+            }
             }
         }
         stage("Deploy Production"){
             when {
                 branch 'main'
             }
-            parallel {
+            withKubeConfig([CredentialsId: 'kubeconfig-riq-homelab']){
+                parallel {
                 stage("Deploying Auth Service"){
                     steps{
                         dir('auth-service'){
@@ -316,6 +319,7 @@ pipeline{
                         }
                     }
                 }
+            }
             }
         }
     }
