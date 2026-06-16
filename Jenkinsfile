@@ -325,6 +325,9 @@ pipeline{
             
         }
         stage("Deploy To Compose") {
+            environment {
+                WORKSPACE = "/opt/jenkins/data/workspace/${env.JOB_BASE_NAME}"
+            }
             steps {
                 sh "docker-compose -f docker-compose.yaml up -d"
             }
