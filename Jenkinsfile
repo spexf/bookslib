@@ -239,29 +239,41 @@ pipeline{
             parallel {
                 stage("Deploying Auth Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('auth-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Staging.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Book Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('books-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Staging.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Review Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('reviews-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Staging.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Frontend"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('frontend'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Staging.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
@@ -274,29 +286,41 @@ pipeline{
             parallel {
                 stage("Deploying Auth Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('auth-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Production.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Book Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('books-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Production.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Review Service"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('reviews-service'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Production.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
                 stage("Deploying Frontend"){
                     steps{
-                        script {
-                            sh "echo Deploying ... "
+                        dir('frontend'){
+                            sh """
+                                export IMAGE_TAG=${env.COMMIT_ID}
+                                envsubst < Production.yaml | kubectl apply -f -
+                            """
                         }
                     }
                 }
