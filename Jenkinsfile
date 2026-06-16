@@ -327,6 +327,10 @@ pipeline{
         stage("Deploy To Compose") {
             environment {
                 WORKSPACE = "/opt/jenkins/data/workspace/${env.JOB_BASE_NAME}"
+                POSTGRES_USER     = credentials('postgres-user')
+                POSTGRES_PASSWORD = credentials('postgres-password')
+                DB_HOST = credentials('postgres-host')
+                POSTGRES_DB = credentials('postgres-db')
             }
             steps {
                 sh "docker-compose -f docker-compose.yaml up -d"
