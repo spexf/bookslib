@@ -10,10 +10,16 @@ pipeline{
     stages{
         stage("Checkout"){
             steps{
-                checkout scm
+                // checkout scm
+                // script {
+                //     env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                //     echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
+                // }
+
                 script {
-                    env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
+                    def scmVars = checkout scm
+                    env.COMMIT_ID = scmVars.GIT_COMMIT.take(7) 
+                    echo "Short Commit ID: ${env.COMMIT_ID}"
                 }
             }
         }
