@@ -16,8 +16,9 @@ pipeline{
                 //     echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
                 // }
 
+                checkout scm
                 script {
-                    def scmVars = checkout scm
+                    // Jenkins otomatis set env.GIT_COMMIT setelah checkout scm
                     env.COMMIT_ID = env.GIT_COMMIT.take(7)
                     echo "COMMIT_ID: ${env.COMMIT_ID}"
                 }
