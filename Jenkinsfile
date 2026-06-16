@@ -18,8 +18,8 @@ pipeline{
 
                 script {
                     def scmVars = checkout scm
-                    env.COMMIT_ID = scmVars.GIT_COMMIT.take(7) 
-                    echo "Short Commit ID: ${env.COMMIT_ID}"
+                    env.COMMIT_ID = env.GIT_COMMIT.take(7)
+                    echo "COMMIT_ID: ${env.COMMIT_ID}"
                 }
             }
         }
