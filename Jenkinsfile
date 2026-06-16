@@ -195,6 +195,8 @@ pipeline{
                                 --image-src remote \
                                 ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
                             """
+                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/auth-service-${COMMIT_ID}.json"
+
                     }
                 }
                 stage("Testing Book Service Images"){
@@ -213,6 +215,7 @@ pipeline{
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
                         """
+                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/book-service-${COMMIT_ID}.json"
 
                     }
                 }
@@ -232,6 +235,8 @@ pipeline{
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
                         """
+                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/review-service-${COMMIT_ID}.json"
+
                     }
                 }
                 stage("Testing React Frontend Images"){
@@ -250,11 +255,14 @@ pipeline{
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
                         """
+                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/react-frontend-${COMMIT_ID}.json"
+
                     }
                 }
             } 
 
         }
+
         stage("Deploy Development"){
             when {
                 branch 'development'
