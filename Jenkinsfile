@@ -324,28 +324,16 @@ pipeline{
             }
             
         }
-        stage('Deploy') {
+        stage("Deploy To Compose") {
+            environment {
+                POSTGRES_USER     = credentials('postgres-user')
+                POSTGRES_PASSWORD = credentials('postgres-password')
+                DB_HOST = credentials('postgres-host')
+                POSTGRES_DB = credentials('postgres-db')
+            }
             steps {
-                sh '''
-                    HOST_WS=$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
-                    
-                    # Tulis ke WORKSPACE (path dalam Jenkins container, yang bisa diakses)
-                    cat > ${WORKSPACE}/init-db.sh << 'EOF'
-#!/bin/bash
-set -e
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    CREATE DATABASE auth_db;
-    CREATE DATABASE books_db;
-    CREATE DATABASE reviews_db;
-EOSQL
-EOF
-                    chmod +x ${WORKSPACE}/init-db.sh
-
-                    docker-compose -f docker-compose.yaml down -v
-
-                    # HOST_WS dipakai hanya untuk volume mount di compose
-                    HOST_WS=${HOST_WS} docker-compose -f docker-compose.yaml up -d
-                '''
+                sh "docker-compose -f docker-compose.yaml down"
+                sh "docker-compose -f docker-compose.yaml up -d"
             }
         }
     }
