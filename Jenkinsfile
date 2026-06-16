@@ -149,34 +149,39 @@ pipeline{
         }
         stage("Pushing Artifact"){
             parallel {
-                stage("Deploying Auth Service"){
+                stage("Pushing Auth Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Book Service"){
+                stage("Pushing Book Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Review Service"){
+                stage("Pushing Review Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Frontend"){
+                stage("Pushing Frontend"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}"
                         }
                     }
                 }
+            }
+        }
+        stage("Trivy Checking"){
+            steps {
+                echo "checking"
             }
         }
         stage("Deploy Pods"){
@@ -228,9 +233,19 @@ pipeline{
         }
         success{
             echo "SUCCESS" 
+            sh '/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}'
+            echo "REGISTRY CLEANING COMPLETE"
         }
         failure{
-            echo "FAILED"
+            echo "FAILED CLEANING REGISTRY"
+            sh '/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}'
+            sh '/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}'
+            echo "REGISTRY CLEANING COMPLETE"
         }
 
         
