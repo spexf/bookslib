@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: book-service
-        image: harbor.riq-homelab.local:5000/book-service:latest
+        image: harbor.riq-homelab.local:5000/book-service:${IMAGE_TAG}
         envFrom:
         - configMapRef:
             name: postgres-config

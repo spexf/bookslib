@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: harbor.riq-homelab.local:5000/auth-service:latest
+        image: harbor.riq-homelab.local:5000/auth-service:${IMAGE_TAG}
         envFrom:
         - configMapRef:
             name: postgres-config

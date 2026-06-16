@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: react-frontend
-        image: harbor.riq-homelab.local:5000/react-frontend:latest
+        image: harbor.riq-homelab.local:5000/react-frontend:${IMAGE_TAG}
         envFrom:
         - configMapRef:
             name: api-endpoint
