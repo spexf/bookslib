@@ -324,19 +324,12 @@ pipeline{
             }
             
         }
-        stage("Deploy To Compose") {
-            environment {
-                WORKSPACE = "/opt/jenkins/data/workspace/${env.JOB_BASE_NAME}"
-                POSTGRES_USER     = credentials('postgres-user')
-                POSTGRES_PASSWORD = credentials('postgres-password')
-                DB_HOST = credentials('postgres-host')
-                POSTGRES_DB = credentials('postgres-db')
-            }
+        stage('Deploy') {
             steps {
                 sh '''
                     HOST_WS=$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
                     
-                    # Pastiin init-db.sh ada di workspace
+                    # Tulis ke WORKSPACE (path dalam Jenkins container, yang bisa diakses)
                     cat > ${WORKSPACE}/init-db.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -348,10 +341,9 @@ EOSQL
 EOF
                     chmod +x ${WORKSPACE}/init-db.sh
 
-                    # Down dulu biar volume keapus dan init script ke-trigger
                     docker-compose -f docker-compose.yaml down -v
 
-                    # Up dengan HOST_WS sebagai base path untuk volume mount
+                    # HOST_WS dipakai hanya untuk volume mount di compose
                     HOST_WS=${HOST_WS} docker-compose -f docker-compose.yaml up -d
                 '''
             }
