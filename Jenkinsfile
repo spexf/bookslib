@@ -12,7 +12,7 @@ pipeline{
             steps{
                 checkout scm
                 script {
-                    COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     echo "Short Commit ID yang didapat: ${COMMIT_ID}"
                 }
             }
