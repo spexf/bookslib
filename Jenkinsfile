@@ -13,7 +13,7 @@ pipeline{
                 checkout scm
                 script {
                     env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Short Commit ID yang didapat: ${COMMIT_ID}"
+                    echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
                 }
             }
         }
@@ -113,7 +113,7 @@ pipeline{
                     steps{
                         dir('auth-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -122,7 +122,7 @@ pipeline{
                     steps{
                         dir('books-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -131,7 +131,7 @@ pipeline{
                     steps{
                         dir('reviews-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -140,7 +140,7 @@ pipeline{
                     steps{
                         dir('frontend'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -152,28 +152,28 @@ pipeline{
                 stage("Deploying Auth Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Book Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Review Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Frontend"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}"
                         }
                     }
                 }
@@ -192,7 +192,7 @@ pipeline{
         //                     --exit-code 1 \
         //                     --ignore-unfixed \
         //                     --format table \
-        //                     ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+        //                     ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}
         //                 """
         //             }
         //         }
@@ -207,7 +207,7 @@ pipeline{
         //                     --exit-code 1 \
         //                     --ignore-unfixed \
         //                     --format table \
-        //                     ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+        //                     ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}
         //                 """
         //             }
         //         }
@@ -222,7 +222,7 @@ pipeline{
         //                     --exit-code 1 \
         //                     --ignore-unfixed \
         //                     --format table \
-        //                     ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+        //                     ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}
         //                 """
         //             }
         //         }
@@ -237,7 +237,7 @@ pipeline{
         //                     --exit-code 1 \
         //                     --ignore-unfixed \
         //                     --format table \
-        //                     ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
+        //                     ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}
         //                 """
         //             }
         //         }
@@ -283,15 +283,15 @@ pipeline{
             script {
             sh "echo 'Cleaning Images . . .' "
             sh '''
-                docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                docker rmi ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} \
+                ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID} -f
                 '''
-            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/auth-service --tag ${COMMIT_ID}"
-            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/book-service --tag ${COMMIT_ID}"
-            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/review-service --tag ${COMMIT_ID}"
-            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/frontend --tag ${COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/auth-service --tag ${env.COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/book-service --tag ${env.COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/review-service --tag ${env.COMMIT_ID}"
+            sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/frontend --tag ${env.COMMIT_ID}"
 
         }
         }
