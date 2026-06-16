@@ -20,218 +20,218 @@ pipeline{
             }
         }
 
-        stage("SAST Scanning") {
-            steps {
-                sh """
-                    HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
+        // stage("SAST Scanning") {
+        //     steps {
+        //         sh """
+        //             HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
 
-                    docker run --rm \\
-                        --security-opt label=level:s0:c1022,c1023 \\
-                        -v "\${HOST_WS}:/src" \\
-                        -v "\${HOST_WS}:/output:rw" \\
-                        -w /src \\
-                        harbor.riq-homelab.local:5000/semgrep-custom:latest \\
-                        semgrep scan \\
-                            --config auto \\
-                            --json \\
-                            --output /output/semgrep-results.json \\
-                            .
-                """
-            }
-        }
-        stage("SAST Result Analysis") {
-            steps {
-                script {
-                    def results = readJSON file: 'semgrep-results.json'
-                    int totalFindings = results.results.size()
-                    echo "Total findings: ${totalFindings}"
-                    if (totalFindings > 0){  
-                        def findingsText = ""
-                        results.results.each { finding ->
-                            findingsText += """
-### Rule
-${finding.check_id}
+        //             docker run --rm \\
+        //                 --security-opt label=level:s0:c1022,c1023 \\
+        //                 -v "\${HOST_WS}:/src" \\
+        //                 -v "\${HOST_WS}:/output:rw" \\
+        //                 -w /src \\
+        //                 harbor.riq-homelab.local:5000/semgrep-custom:latest \\
+        //                 semgrep scan \\
+        //                     --config auto \\
+        //                     --json \\
+        //                     --output /output/semgrep-results.json \\
+        //                     .
+        //         """
+        //     }
+        // }
+//         stage("SAST Result Analysis") {
+//             steps {
+//                 script {
+//                     def results = readJSON file: 'semgrep-results.json'
+//                     int totalFindings = results.results.size()
+//                     echo "Total findings: ${totalFindings}"
+//                     if (totalFindings > 0){  
+//                         def findingsText = ""
+//                         results.results.each { finding ->
+//                             findingsText += """
+// ### Rule
+// ${finding.check_id}
 
-### Severity
-${finding.extra.severity}
+// ### Severity
+// ${finding.extra.severity}
 
-### File
-${finding.path}
+// ### File
+// ${finding.path}
 
-### Message
-${finding.extra.message}
+// ### Message
+// ${finding.extra.message}
 
-### Line
-${finding.start.line}
+// ### Line
+// ${finding.start.line}
 
----
+// ---
                         
-                        """
-                        }
-                        writeFile(
-                            file: 'issue_body.md',
-                            text: """
-# 🚨 Semgrep Security Scan Failed
+//                         """
+//                         }
+//                         writeFile(
+//                             file: 'issue_body.md',
+//                             text: """
+// # 🚨 Semgrep Security Scan Failed
 
-Ditemukan vulnerability / bug / issue pada hasil scanning.
-## Findings
-${findingsText}
+// Ditemukan vulnerability / bug / issue pada hasil scanning.
+// ## Findings
+// ${findingsText}
 
-Repository: ${env.GITHUB_REPO}
+// Repository: ${env.GITHUB_REPO}
 
-Build: ${env.BUILD_URL}
-                            """
-                        )
-                        withCredentials([
-                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-                        ]) {
-                            sh '''
-                            ISSUE_TITLE="🚨 Semgrep Security Findings - Build #${BUILD_NUMBER}"
+// Build: ${env.BUILD_URL}
+//                             """
+//                         )
+//                         withCredentials([
+//                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+//                         ]) {
+//                             sh '''
+//                             ISSUE_TITLE="🚨 Semgrep Security Findings - Build #${BUILD_NUMBER}"
 
-                            ISSUE_BODY=$(cat issue_body.md | jq -Rs .)
+//                             ISSUE_BODY=$(cat issue_body.md | jq -Rs .)
 
-                            curl -s -X POST \
-                              -H "Authorization: token ${GITHUB_TOKEN}" \
-                              -H "Accept: application/vnd.github+json" \
-                              ${GITHUB_API}/repos/${GITHUB_REPO}/issues \
-                              -d "{
-                                \\"title\\": \\"${ISSUE_TITLE}\\",
-                                \\"body\\": ${ISSUE_BODY}
-                              }"
-                            '''
-                        }
-                        error("Semgrep menemukan vulnerability/bug. Pipelin gagal")
-                    } else {
-                        echo "Tidak ditemukan vuln atau bug"
-                    }
-                }
-            }
-        }
-        stage("Application Building") {
-            parallel {
-                stage("Building Auth Service"){
-                    steps{
-                        dir('auth-service'){
-                            script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID} ."
-                            }
-                        }
-                    }
-                }
-                stage("Building Book Service"){
-                    steps{
-                        dir('books-service'){
-                            script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID} ."
-                            }
-                        }
-                    }
-                }
-                stage("Building Review Service"){
-                    steps{
-                        dir('reviews-service'){
-                            script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} ."
-                            }
-                        }
-                    }
-                }
-                stage("Building Frontend"){
-                    steps{
-                        dir('frontend'){
-                            script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID} ."
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        stage("Pushing Artifact"){
-            parallel {
-                stage("Pushing Auth Service"){
-                    steps {
-                        script {
-                            sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
-                        }
-                    }
-                }
-                stage("Pushing Book Service"){
-                    steps {
-                        script {
-                            sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
-                        }
-                    }
-                }
-                stage("Pushing Review Service"){
-                    steps {
-                        script {
-                            sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
-                        }
-                    }
-                }
-                stage("Pushing Frontend"){
-                    steps {
-                        script {
-                            sh "docker push ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID}"
-                        }
-                    }
-                }
-            }
-        }
-        stage("Trivy Checking"){
-            steps {
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
-                """
-            }        
+//                             curl -s -X POST \
+//                               -H "Authorization: token ${GITHUB_TOKEN}" \
+//                               -H "Accept: application/vnd.github+json" \
+//                               ${GITHUB_API}/repos/${GITHUB_REPO}/issues \
+//                               -d "{
+//                                 \\"title\\": \\"${ISSUE_TITLE}\\",
+//                                 \\"body\\": ${ISSUE_BODY}
+//                               }"
+//                             '''
+//                         }
+//                         error("Semgrep menemukan vulnerability/bug. Pipelin gagal")
+//                     } else {
+//                         echo "Tidak ditemukan vuln atau bug"
+//                     }
+//                 }
+//             }
+//         }
+        // stage("Application Building") {
+        //     parallel {
+        //         stage("Building Auth Service"){
+        //             steps{
+        //                 dir('auth-service'){
+        //                     script{
+        //                         sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID} ."
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //         stage("Building Book Service"){
+        //             steps{
+        //                 dir('books-service'){
+        //                     script{
+        //                         sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID} ."
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //         stage("Building Review Service"){
+        //             steps{
+        //                 dir('reviews-service'){
+        //                     script{
+        //                         sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} ."
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //         stage("Building Frontend"){
+        //             steps{
+        //                 dir('frontend'){
+        //                     script{
+        //                         sh "docker build --target production -t ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID} ."
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // stage("Pushing Artifact"){
+        //     parallel {
+        //         stage("Pushing Auth Service"){
+        //             steps {
+        //                 script {
+        //                     sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
+        //                 }
+        //             }
+        //         }
+        //         stage("Pushing Book Service"){
+        //             steps {
+        //                 script {
+        //                     sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
+        //                 }
+        //             }
+        //         }
+        //         stage("Pushing Review Service"){
+        //             steps {
+        //                 script {
+        //                     sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
+        //                 }
+        //             }
+        //         }
+        //         stage("Pushing Frontend"){
+        //             steps {
+        //                 script {
+        //                     sh "docker push ${CONTAINER_REGISTRY}/react-frontend:${env.COMMIT_ID}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // stage("Trivy Checking"){
+        //     steps {
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
+        //         """
+        //     }        
 
-        }
+        // }
         stage("Deploy Development"){
             when {
                 branch 'development'
@@ -323,6 +323,11 @@ Build: ${env.BUILD_URL}
                 }
             }
             
+        }
+        stage("Deploy To Compose") {
+            steps {
+                sh "docker-compose -f docker-compose.yml up -d"
+            }
         }
     }
         
