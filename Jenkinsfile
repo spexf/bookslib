@@ -233,18 +233,20 @@ pipeline{
         }
         success{
             echo "SUCCESS" 
-            sh '/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}'
+            echo "CLEANING REGISTRY..."
+            sh "/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}"
             echo "REGISTRY CLEANING COMPLETE"
         }
         failure{
-            echo "FAILED CLEANING REGISTRY"
-            sh '/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}'
-            sh '/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}'
+            echo "FAILED"
+            echo "CLEANING REGISTRY..."
+            sh "/var/jenkins_home/clean-registry-images.sh auth-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh book-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh review-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clean-registry-images.sh frontend ${env.COMMIT_ID}"
             echo "REGISTRY CLEANING COMPLETE"
         }
 
