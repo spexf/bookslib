@@ -10,17 +10,14 @@ pipeline{
     stages{
         stage("Checkout"){
             steps{
-                // checkout scm
-                // script {
-                //     env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                //     echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
-                // }
-
                 checkout scm
                 script {
-                    // Jenkins otomatis set env.GIT_COMMIT setelah checkout scm
-                    env.COMMIT_ID = env.GIT_COMMIT.take(7)
-                    echo "COMMIT_ID: ${env.COMMIT_ID}"
+                    env.COMMIT_ID = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Short Commit ID: ${env.COMMIT_ID}"
                 }
             }
         }
