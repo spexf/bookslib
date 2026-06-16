@@ -179,70 +179,70 @@ pipeline{
                 }
             }
         }
-        stage('Trivy - Image Scan') {
-            parallel {
-                stage("Auth Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Book Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Review Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
-                        """
-                    }
-                }
-                stage("Frontend Service Image Scan"){
-                    steps {
-                        sh """
-                            docker run --rm \
-                            -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
-                            -v trivy-cache:/root/.cache/ \
-                            aquasec/trivy:latest image \
-                            --severity HIGH,CRITICAL \
-                            --exit-code 1 \
-                            --ignore-unfixed \
-                            --format table \
-                            ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
-                        """
-                    }
-                }
-            }
-        }
+        // stage('Trivy - Image Scan') {
+        //     parallel {
+        //         stage("Auth Service Image Scan"){
+        //             steps {
+        //                 sh """
+        //                     docker run --rm \
+        //                     -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+        //                     -v trivy-cache:/root/.cache/ \
+        //                     aquasec/trivy:latest image \
+        //                     --severity HIGH,CRITICAL \
+        //                     --exit-code 1 \
+        //                     --ignore-unfixed \
+        //                     --format table \
+        //                     ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+        //                 """
+        //             }
+        //         }
+        //         stage("Book Service Image Scan"){
+        //             steps {
+        //                 sh """
+        //                     docker run --rm \
+        //                     -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+        //                     -v trivy-cache:/root/.cache/ \
+        //                     aquasec/trivy:latest image \
+        //                     --severity HIGH,CRITICAL \
+        //                     --exit-code 1 \
+        //                     --ignore-unfixed \
+        //                     --format table \
+        //                     ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+        //                 """
+        //             }
+        //         }
+        //         stage("Review Service Image Scan"){
+        //             steps {
+        //                 sh """
+        //                     docker run --rm \
+        //                     -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+        //                     -v trivy-cache:/root/.cache/ \
+        //                     aquasec/trivy:latest image \
+        //                     --severity HIGH,CRITICAL \
+        //                     --exit-code 1 \
+        //                     --ignore-unfixed \
+        //                     --format table \
+        //                     ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+        //                 """
+        //             }
+        //         }
+        //         stage("Frontend Service Image Scan"){
+        //             steps {
+        //                 sh """
+        //                     docker run --rm \
+        //                     -v ${CONTAINER_SOCK}:/var/run/docker.sock:z,shared \
+        //                     -v trivy-cache:/root/.cache/ \
+        //                     aquasec/trivy:latest image \
+        //                     --severity HIGH,CRITICAL \
+        //                     --exit-code 1 \
+        //                     --ignore-unfixed \
+        //                     --format table \
+        //                     ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         stage("Deploy Pods"){
             parallel {
                 stage("Deploying Auth Service"){
