@@ -220,15 +220,10 @@ pipeline{
                 sh "echo 'Cleaning Images . . .' "
                 sh '''
                     docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
-                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID} \
                     ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
                     ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
                     '''
-                sh "/var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image auth-service --tag ${COMMIT_ID}"
-                sh "/var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image book-service --tag ${COMMIT_ID}"
-                sh "/var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image review-service --tag ${COMMIT_ID}"
-                sh "/var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image frontend --tag ${COMMIT_ID}"
-
             }
         }
         success{
