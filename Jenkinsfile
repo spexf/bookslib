@@ -281,26 +281,6 @@ pipeline{
         always{
             echo "Cleaning Images"
             script {
-                sh '''
-                docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
-                ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
-                '''
-            }
-        }
-        success{
-            echo "SUCCESS" 
-        }
-        failure{
-            echo "FAILED"
-        }
-
-        
-    }
-
-    finally {
-        script {
             sh "echo 'Cleaning Images . . .' "
             sh '''
                 docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
@@ -312,8 +292,18 @@ pipeline{
             sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/book-service --tag ${COMMIT_ID}"
             sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/review-service --tag ${COMMIT_ID}"
             sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/frontend --tag ${COMMIT_ID}"
-            sh "echo 'Cleaning Images . . .' "
 
         }
+        }
+        success{
+            echo "SUCCESS" 
+        }
+        failure{
+            echo "FAILED"
+        }
+
+        
     }
+
+    
 }
