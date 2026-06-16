@@ -326,7 +326,7 @@ pipeline{
         }
         stage("Deploy To Compose") {
             steps {
-                sh "docker-compose -f docker-compose.yml up -d"
+                sh "docker-compose -f docker-compose.yaml up -d"
             }
         }
     }
