@@ -28,8 +28,8 @@ pipeline{
 
         stage("SAST Scanning") {
             steps {
+                HOST_WS=$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
                 sh """
-                HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
 
                 docker run --rm \
                     --security-opt label=level:s0:c1022,c1023 \
