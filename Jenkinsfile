@@ -324,6 +324,18 @@ Build: ${env.BUILD_URL}
             }
             
         }
+        // stage("Deploy To Compose") {
+        //     environment {
+        //         POSTGRES_USER     = credentials('postgres-user')
+        //         POSTGRES_PASSWORD = credentials('postgres-password')
+        //         DB_HOST = credentials('postgres-host')
+        //         POSTGRES_DB = credentials('postgres-db')
+        //     }
+        //     steps {
+        //         sh "docker-compose -f ${env.WORKSPACE}/docker-compose.yaml down"
+        //         sh "docker-compose -f ${env.WORKSPACE}/docker-compose.yaml up -d"
+        //     }
+        // } // TODO If have enough time, but my head hurts now :')
     }
         
     post{
