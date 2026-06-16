@@ -28,21 +28,21 @@ pipeline{
 
         stage("SAST Scanning") {
             steps {
-                HOST_WS=$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
                 sh """
+                    HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
 
-                docker run --rm \
-                    --security-opt label=level:s0:c1022,c1023 \
-                    -v "${HOST_WS}:/src" \
-                    -v "${HOST_WS}:/output":rw \
-                    -w /src \
-                    harbor.riq-homelab.local:5000/semgrep-custom:latest \
-                    semgrep scan \
-                        --config auto \
-                        --json \
-                        --output /output/semgrep-results.json \
-                        .
-            """
+                    docker run --rm \\
+                        --security-opt label=level:s0:c1022,c1023 \\
+                        -v "\${HOST_WS}:/src" \\
+                        -v "\${HOST_WS}:/output:rw" \\
+                        -w /src \\
+                        harbor.riq-homelab.local:5000/semgrep-custom:latest \\
+                        semgrep scan \\
+                            --config auto \\
+                            --json \\
+                            --output /output/semgrep-results.json \\
+                            .
+                """
             }
         }
         // stage("SAST Result Analysis") {
