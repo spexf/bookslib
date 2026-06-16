@@ -241,8 +241,7 @@ pipeline{
                     steps{
                         dir('auth-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Staging.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -251,8 +250,7 @@ pipeline{
                     steps{
                         dir('books-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Staging.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -261,8 +259,7 @@ pipeline{
                     steps{
                         dir('reviews-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Staging.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -271,8 +268,7 @@ pipeline{
                     steps{
                         dir('frontend'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Staging.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -288,8 +284,7 @@ pipeline{
                     steps{
                         dir('auth-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Production.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -298,8 +293,7 @@ pipeline{
                     steps{
                         dir('books-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Production.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -308,8 +302,7 @@ pipeline{
                     steps{
                         dir('reviews-service'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Production.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
                             """
                         }
                     }
@@ -318,8 +311,7 @@ pipeline{
                     steps{
                         dir('frontend'){
                             sh """
-                                export IMAGE_TAG=${env.COMMIT_ID}
-                                envsubst < Production.yaml | kubectl apply -f -
+                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
                             """
                         }
                     }
