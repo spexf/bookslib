@@ -214,7 +214,20 @@ pipeline{
     post{
         always{
             echo "Cleaning Images"
-            echo "${env.COMMIT_ID}"
+            script {
+                sh "echo 'Cleaning Images . . .' "
+                sh '''
+                    docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                    '''
+                sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/auth-service --tag ${COMMIT_ID}"
+                sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/book-service --tag ${COMMIT_ID}"
+                sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/review-service --tag ${COMMIT_ID}"
+                sh "./var/jenkins_home/clear-regisrty-images.sh --registry ${CONTAINER_REGISTRY} --image ${CONTAINER_REGISTRY}/frontend --tag ${COMMIT_ID}"
+
+            }
         }
         success{
             echo "SUCCESS" 
