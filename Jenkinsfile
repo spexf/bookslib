@@ -232,7 +232,45 @@ pipeline{
             }        
 
         }
-        stage("Deploy Pods"){
+        stage("Deploy Development"){
+            when {
+                branch 'development'
+            }
+            parallel {
+                stage("Deploying Auth Service"){
+                    steps{
+                        script {
+                            sh "echo Deploying ... "
+                        }
+                    }
+                }
+                stage("Deploying Book Service"){
+                    steps{
+                        script {
+                            sh "echo Deploying ... "
+                        }
+                    }
+                }
+                stage("Deploying Review Service"){
+                    steps{
+                        script {
+                            sh "echo Deploying ... "
+                        }
+                    }
+                }
+                stage("Deploying Frontend"){
+                    steps{
+                        script {
+                            sh "echo Deploying ... "
+                        }
+                    }
+                }
+            }
+        }
+        stage("Deploy Production"){
+            when {
+                branch 'main'
+            }
             parallel {
                 stage("Deploying Auth Service"){
                     steps{
