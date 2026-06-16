@@ -5,6 +5,7 @@ pipeline{
         GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
         CONTAINER_SOCK = "/run/user/1001/podman/podman.sock"
+
     }
     stages{
         stage("Checkout"){
@@ -20,18 +21,20 @@ pipeline{
         stage("SAST Scanning") {
             steps {
                 sh """
-                docker run --rm \
-                    --security-opt label=level:s0:c1022,c1023 \
-                    -v "/opt/jenkins/data/workspace/Bookslib_${BRANCH_NAME}:/src" \
-                    -v "/opt/jenkins/data/workspace/Bookslib_${BRANCH_NAME}:/output":rw \
-                    -w /src \
-                    harbor.riq-homelab.local:5000/semgrep-custom:latest \
-                    semgrep scan \
-                        --config auto \
-                        --json \
-                        --output /output/semgrep-results.json \
-                        .
-            """
+                    HOST_WS=\$(echo "${WORKSPACE}" | sed 's|/var/jenkins_home|/opt/jenkins/data|')
+
+                    docker run --rm \\
+                        --security-opt label=level:s0:c1022,c1023 \\
+                        -v "\${HOST_WS}:/src" \\
+                        -v "\${HOST_WS}:/output:rw" \\
+                        -w /src \\
+                        harbor.riq-homelab.local:5000/semgrep-custom:latest \\
+                        semgrep scan \\
+                            --config auto \\
+                            --json \\
+                            --output /output/semgrep-results.json \\
+                            .
+                """
             }
         }
         stage("SAST Result Analysis") {
