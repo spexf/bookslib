@@ -1,5 +1,7 @@
 pipeline{
-    agent any
+    agent {
+        label 'main-agent'
+    }
     environment {
         GITHUB_API = "https://api.github.com"
         GITHUB_REPO = "spexf/bookslib"
