@@ -4,7 +4,7 @@ pipeline{
         GITHUB_API = "https://api.github.com"
         GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
-        COMMIT_ID = ""
+        env.COMMIT_ID = ""
         CONTAINER_SOCK = "/run/user/1001/podman/podman.sock"
     }
     stages{
