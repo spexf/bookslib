@@ -181,6 +181,7 @@ pipeline{
             parallel {
                 stage("Testing Auth Service Images"){
                     steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """
                                 docker run --rm \
                                 -v "${HOST_WS}:/output:z" \
@@ -191,9 +192,11 @@ pipeline{
                                 --ignore-unfixed \
                                 --format json \
                                 --output /output/auth-service-${COMMIT_ID}.json \
+                                --exit-code 1 \
                                 --image-src remote \
                                 ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
                             """
+                        }
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
@@ -203,6 +206,7 @@ pipeline{
                 }
                 stage("Testing Book Service Images"){
                     steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """
                             docker run --rm \
                             -v trivy-cache:/root/.cache/ \
@@ -213,9 +217,11 @@ pipeline{
                             --ignore-unfixed \
                             --format json \
                             --output /output/book-service-${COMMIT_ID}.json \
+                            --exit-code 1 \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
                         """
+                        }
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
@@ -225,6 +231,7 @@ pipeline{
                 }
                 stage("Testing Review Service Images"){
                     steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """
                             docker run --rm \
                             -v trivy-cache:/root/.cache/ \
@@ -235,9 +242,11 @@ pipeline{
                             --ignore-unfixed \
                             --format json \
                             --output /output/review-service-${COMMIT_ID}.json \
+                            --exit-code 1 \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
                         """
+                        }
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
@@ -247,6 +256,7 @@ pipeline{
                 }
                 stage("Testing React Frontend Images"){
                     steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sh """
                             docker run --rm \
                             -v trivy-cache:/root/.cache/ \
@@ -257,9 +267,11 @@ pipeline{
                             --ignore-unfixed \
                             --format json \
                             --output /output/react-frontend-${COMMIT_ID}.json \
+                            --exit-code 1 \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
                         """
+                        }
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
