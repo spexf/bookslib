@@ -197,7 +197,7 @@ pipeline{
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
-                            sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/auth-service-${COMMIT_ID}.json"
+                            sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/auth-service-${COMMIT_ID}.json"
                         }
                     }
                 }
@@ -219,7 +219,7 @@ pipeline{
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
-                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/book-service-${COMMIT_ID}.json"
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/book-service-${COMMIT_ID}.json"
                         }
                     }
                 }
@@ -241,7 +241,7 @@ pipeline{
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
-                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/review-service-${COMMIT_ID}.json"
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/review-service-${COMMIT_ID}.json"
                         }
                     }
                 }
@@ -263,7 +263,7 @@ pipeline{
                         withCredentials([
                             string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
                         ]){
-                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/react-frontend-${COMMIT_ID}.json"
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/react-frontend-${COMMIT_ID}.json"
                         }
                     }
                 }
