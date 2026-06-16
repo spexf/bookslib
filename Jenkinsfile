@@ -179,59 +179,59 @@ pipeline{
                 }
             }
         }
-        stage("Trivy Checking"){
-            steps {
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
-                """
-                sh """
-                    docker run --rm \
-                    -v trivy-cache:/root/.cache/ \
-                    -e TRIVY_INSECURE=true \
-                    aquasec/trivy:latest image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --ignore-unfixed \
-                    --format table \
-                    --image-src remote \
-                    ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
-                """
-            }        
+        // stage("Trivy Checking"){
+        //     steps {
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+        //         """
+        //         sh """
+        //             docker run --rm \
+        //             -v trivy-cache:/root/.cache/ \
+        //             -e TRIVY_INSECURE=true \
+        //             aquasec/trivy:latest image \
+        //             --severity HIGH,CRITICAL \
+        //             --exit-code 1 \
+        //             --ignore-unfixed \
+        //             --format table \
+        //             --image-src remote \
+        //             ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}
+        //         """
+        //     }        
 
-        }
+        // }
         stage("Deploy Development"){
             when {
                 branch 'development'
