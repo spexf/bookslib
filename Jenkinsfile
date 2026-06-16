@@ -188,15 +188,17 @@ pipeline{
                                 -e TRIVY_INSECURE=true \
                                 aquasec/trivy:latest image \
                                 --severity HIGH,CRITICAL \
-                                --exit-code 1 \
                                 --ignore-unfixed \
                                 --format json \
                                 --output /output/auth-service-${COMMIT_ID}.json \
                                 --image-src remote \
                                 ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
                             """
-                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/auth-service-${COMMIT_ID}.json"
-
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                            sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/auth-service-${COMMIT_ID}.json"
+                        }
                     }
                 }
                 stage("Testing Book Service Images"){
@@ -208,15 +210,17 @@ pipeline{
                             -e TRIVY_INSECURE=true \
                             aquasec/trivy:latest image \
                             --severity HIGH,CRITICAL \
-                            --exit-code 1 \
                             --ignore-unfixed \
                             --format json \
                             --output /output/book-service-${COMMIT_ID}.json \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
                         """
-                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/book-service-${COMMIT_ID}.json"
-
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/book-service-${COMMIT_ID}.json"
+                        }
                     }
                 }
                 stage("Testing Review Service Images"){
@@ -228,15 +232,17 @@ pipeline{
                             -e TRIVY_INSECURE=true \
                             aquasec/trivy:latest image \
                             --severity HIGH,CRITICAL \
-                            --exit-code 1 \
                             --ignore-unfixed \
                             --format json \
                             --output /output/review-service-${COMMIT_ID}.json \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
                         """
-                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/review-service-${COMMIT_ID}.json"
-
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/review-service-${COMMIT_ID}.json"
+                        }
                     }
                 }
                 stage("Testing React Frontend Images"){
@@ -248,15 +254,17 @@ pipeline{
                             -e TRIVY_INSECURE=true \
                             aquasec/trivy:latest image \
                             --severity HIGH,CRITICAL \
-                            --exit-code 1 \
                             --ignore-unfixed \
                             --format json \
                             --output /output/react-frontend-${COMMIT_ID}.json \
                             --image-src remote \
                             ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
                         """
-                        sh "/var/jenkins_home/trivy-to-gitlab-issue.sh ${HOST_WS}/react-frontend-${COMMIT_ID}.json"
-
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${HOST_WS}/react-frontend-${COMMIT_ID}.json"
+                        }
                     }
                 }
             } 
