@@ -241,9 +241,8 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('auth-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
-                            """
+                            
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml && kubectl apply -f Staging.yaml"
                         }
                         }
                     }
@@ -253,9 +252,8 @@ pipeline{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             
                             dir('books-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml && kubectl apply -f Staging.yaml"
+
                         }
                         }
                     }
@@ -264,9 +262,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('reviews-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml && kubectl apply -f Staging.yaml"
                         }
                         }
                     }
@@ -275,9 +271,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('frontend'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Staging.yaml && kubectl apply -f Staging.yaml"
                         }
                         }
                     }
@@ -295,9 +289,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('auth-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml && kubectl apply -f Production.yaml"
                         }
                         }
                     }
@@ -306,9 +298,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('books-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml && kubectl apply -f Production.yaml"
                         }
                         }
                     }
@@ -317,9 +307,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('reviews-service'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml && kubectl apply -f Production.yaml"
                         }
                         }
                     }
@@ -328,9 +316,7 @@ pipeline{
                     steps{
                         withKubeConfig([credentialsId: 'kubeconfig-riq-homelab']){
                             dir('frontend'){
-                            sh """
-                                sed 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml | kubectl apply -f -
-                            """
+                            sh "sed -i 's|\${IMAGE_TAG}|${COMMIT_ID}|g' Production.yaml && kubectl apply -f Production.yaml"
                         }
                         }
                     }
