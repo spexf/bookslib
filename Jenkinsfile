@@ -4,7 +4,6 @@ pipeline{
         GITHUB_API = "https://api.github.com"
         GITHUB_REPO = "spexf/bookslib"
         CONTAINER_REGISTRY = "harbor.riq-homelab.local:5000"
-        COMMIT_ID = ""
         CONTAINER_SOCK = "/run/user/1001/podman/podman.sock"
     }
     stages{
@@ -12,8 +11,8 @@ pipeline{
             steps{
                 checkout scm
                 script {
-                    COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Short Commit ID yang didapat: ${COMMIT_ID}"
+                    env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Short Commit ID yang didapat: ${env.COMMIT_ID}"
                 }
             }
         }
@@ -35,7 +34,6 @@ pipeline{
             """
             }
         }
-
         stage("SAST Result Analysis") {
             steps {
                 script {
@@ -104,16 +102,13 @@ pipeline{
                 }
             }
         }
-
-
-        
         stage("Application Building") {
             parallel {
                 stage("Building Auth Service"){
                     steps{
                         dir('auth-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -122,7 +117,7 @@ pipeline{
                     steps{
                         dir('books-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -131,7 +126,7 @@ pipeline{
                     steps{
                         dir('reviews-service'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -140,7 +135,7 @@ pipeline{
                     steps{
                         dir('frontend'){
                             script{
-                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} ."
+                                sh "docker build --target production -t ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID} ."
                             }
                         }
                     }
@@ -152,34 +147,33 @@ pipeline{
                 stage("Deploying Auth Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Book Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Review Service"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
                         }
                     }
                 }
                 stage("Deploying Frontend"){
                     steps {
                         script {
-                            sh "docker push ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID}"
+                            sh "docker push ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}"
                         }
                     }
                 }
             }
         }
-        
         stage("Deploy Pods"){
             parallel {
                 stage("Deploying Auth Service"){
@@ -217,6 +211,7 @@ pipeline{
     post{
         always{
             echo "Cleaning Images"
+            echo "${env.COMMIT_ID}"
         }
         success{
             echo "SUCCESS" 
