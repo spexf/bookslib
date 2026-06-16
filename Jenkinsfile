@@ -1,5 +1,7 @@
 pipeline{
-    agent any
+    agent {
+        label 'main-agent'
+    }
     environment {
         GITHUB_API = "https://api.github.com"
         GITHUB_REPO = "spexf/bookslib"
@@ -147,34 +149,39 @@ pipeline{
         }
         stage("Pushing Artifact"){
             parallel {
-                stage("Deploying Auth Service"){
+                stage("Pushing Auth Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/auth-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Book Service"){
+                stage("Pushing Book Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/book-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Review Service"){
+                stage("Pushing Review Service"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/review-service:${env.COMMIT_ID}"
                         }
                     }
                 }
-                stage("Deploying Frontend"){
+                stage("Pushing Frontend"){
                     steps {
                         script {
                             sh "docker push ${CONTAINER_REGISTRY}/frontend:${env.COMMIT_ID}"
                         }
                     }
                 }
+            }
+        }
+        stage("Trivy Checking"){
+            steps {
+                echo "checking"
             }
         }
         stage("Deploy Pods"){
@@ -214,13 +221,33 @@ pipeline{
     post{
         always{
             echo "Cleaning Images"
-            echo "${env.COMMIT_ID}"
+            script {
+                sh "echo 'Cleaning Images . . .' "
+                sh '''
+                    docker rmi ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID} \
+                    ${CONTAINER_REGISTRY}/frontend:${COMMIT_ID} -f
+                    '''
+            }
         }
         success{
             echo "SUCCESS" 
+            echo "CLEANING REGISTRY..."
+            sh "/var/jenkins_home/clear-regisrty-images.sh auth-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh book-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh review-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh frontend ${env.COMMIT_ID}"
+            echo "REGISTRY CLEANING COMPLETE"
         }
         failure{
             echo "FAILED"
+            echo "CLEANING REGISTRY..."
+            sh "/var/jenkins_home/clear-regisrty-images.sh auth-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh book-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh review-service ${env.COMMIT_ID}"
+            sh "/var/jenkins_home/clear-regisrty-images.sh frontend ${env.COMMIT_ID}"
+            echo "REGISTRY CLEANING COMPLETE"
         }
 
         
