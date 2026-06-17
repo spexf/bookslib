@@ -20,30 +20,30 @@ pipeline{
             }
         }
 
-        // stage("SAST Scanning") {
-        //     steps {
-        //         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //         sh """
-        //             docker run --rm \\
-        //                 --security-opt label=level:s0:c1022,c1023 \\
-        //                 -v "${HOST_WS}:/src" \\
-        //                 -v "${HOST_WS}:/output:rw" \\
-        //                 -w /src \\
-        //                 harbor.riq-homelab.local:5000/semgrep-custom:latest \\
-        //                 semgrep scan \\
-        //                     --config auto \\
-        //                     --json \\
-        //                     --output /output/semgrep-results.json \\
-        //                     .
-        //         """
-        //         withCredentials([
-        //                 string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-        //             ]){
-        //                 sh '/var/jenkins_home/semgrep-to-github.issue.sh ${WORKSPACE}/semgrep-results.json'
-        //             }
-        //         }
-        //     }
-        // }
+        stage("SAST Scanning") {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                sh """
+                    docker run --rm \\
+                        --security-opt label=level:s0:c1022,c1023 \\
+                        -v "${HOST_WS}:/src" \\
+                        -v "${HOST_WS}:/output:rw" \\
+                        -w /src \\
+                        harbor.riq-homelab.local:5000/semgrep-custom:latest \\
+                        semgrep scan \\
+                            --config auto \\
+                            --json \\
+                            --output /output/semgrep-results.json \\
+                            .
+                """
+                withCredentials([
+                        string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                    ]){
+                        sh '/var/jenkins_home/semgrep-to-github.issue.sh ${WORKSPACE}/semgrep-results.json'
+                    }
+                }
+            }
+        }
         stage("Application Building") {
             parallel {
                 stage("Building Auth Service"){
@@ -116,111 +116,111 @@ pipeline{
                 }
             }
         }
-        // stage("Trivy Checking"){
-        //     parallel {
-        //         stage("Testing Auth Service Images"){
-        //             steps {
-        //                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                 sh """
-        //                         docker run --rm \
-        //                         -v "${HOST_WS}:/output:z" \
-        //                         -v trivy-cache:/root/.cache/ \
-        //                         -e TRIVY_INSECURE=true \
-        //                         aquasec/trivy:latest image \
-        //                         --severity HIGH,CRITICAL \
-        //                         --ignore-unfixed \
-        //                         --format json \
-        //                         --output /output/auth-service-${COMMIT_ID}.json \
-        //                         --exit-code 1 \
-        //                         --image-src remote \
-        //                         ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
-        //                     """
-        //                 }
-        //                 withCredentials([
-        //                     string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-        //                 ]){
-        //                     sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/auth-service-${COMMIT_ID}.json"
-        //                 }
-        //             }
-        //         }
-        //         stage("Testing Book Service Images"){
-        //             steps {
-        //                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                 sh """
-        //                     docker run --rm \
-        //                     -v trivy-cache:/root/.cache/ \
-        //                     -v "${HOST_WS}:/output:z" \
-        //                     -e TRIVY_INSECURE=true \
-        //                     aquasec/trivy:latest image \
-        //                     --severity HIGH,CRITICAL \
-        //                     --ignore-unfixed \
-        //                     --format json \
-        //                     --output /output/book-service-${COMMIT_ID}.json \
-        //                     --exit-code 1 \
-        //                     --image-src remote \
-        //                     ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
-        //                 """
-        //                 }
-        //                 withCredentials([
-        //                     string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-        //                 ]){
-        //                 sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/book-service-${COMMIT_ID}.json"
-        //                 }
-        //             }
-        //         }
-        //         stage("Testing Review Service Images"){
-        //             steps {
-        //                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                 sh """
-        //                     docker run --rm \
-        //                     -v trivy-cache:/root/.cache/ \
-        //                     -v "${HOST_WS}:/output:z" \
-        //                     -e TRIVY_INSECURE=true \
-        //                     aquasec/trivy:latest image \
-        //                     --severity HIGH,CRITICAL \
-        //                     --ignore-unfixed \
-        //                     --format json \
-        //                     --output /output/review-service-${COMMIT_ID}.json \
-        //                     --exit-code 1 \
-        //                     --image-src remote \
-        //                     ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
-        //                 """
-        //                 }
-        //                 withCredentials([
-        //                     string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-        //                 ]){
-        //                 sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/review-service-${COMMIT_ID}.json"
-        //                 }
-        //             }
-        //         }
-        //         stage("Testing React Frontend Images"){
-        //             steps {
-        //                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-        //                 sh """
-        //                     docker run --rm \
-        //                     -v trivy-cache:/root/.cache/ \
-        //                     -v "${HOST_WS}:/output:z" \
-        //                     -e TRIVY_INSECURE=true \
-        //                     aquasec/trivy:latest image \
-        //                     --severity HIGH,CRITICAL \
-        //                     --ignore-unfixed \
-        //                     --format json \
-        //                     --output /output/react-frontend-${COMMIT_ID}.json \
-        //                     --exit-code 1 \
-        //                     --image-src remote \
-        //                     ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
-        //                 """
-        //                 }
-        //                 withCredentials([
-        //                     string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
-        //                 ]){
-        //                 sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/react-frontend-${COMMIT_ID}.json"
-        //                 }
-        //             }
-        //         }
-        //     } 
+        stage("Trivy Checking"){
+            parallel {
+                stage("Testing Auth Service Images"){
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                                docker run --rm \
+                                -v "${HOST_WS}:/output:z" \
+                                -v trivy-cache:/root/.cache/ \
+                                -e TRIVY_INSECURE=true \
+                                aquasec/trivy:latest image \
+                                --severity HIGH,CRITICAL \
+                                --ignore-unfixed \
+                                --format json \
+                                --output /output/auth-service-${COMMIT_ID}.json \
+                                --exit-code 1 \
+                                --image-src remote \
+                                ${CONTAINER_REGISTRY}/auth-service:${COMMIT_ID}
+                            """
+                        }
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                            sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/auth-service-${COMMIT_ID}.json"
+                        }
+                    }
+                }
+                stage("Testing Book Service Images"){
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/book-service-${COMMIT_ID}.json \
+                            --exit-code 1 \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/book-service:${COMMIT_ID}
+                        """
+                        }
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/book-service-${COMMIT_ID}.json"
+                        }
+                    }
+                }
+                stage("Testing Review Service Images"){
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/review-service-${COMMIT_ID}.json \
+                            --exit-code 1 \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/review-service:${COMMIT_ID}
+                        """
+                        }
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/review-service-${COMMIT_ID}.json"
+                        }
+                    }
+                }
+                stage("Testing React Frontend Images"){
+                    steps {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                            docker run --rm \
+                            -v trivy-cache:/root/.cache/ \
+                            -v "${HOST_WS}:/output:z" \
+                            -e TRIVY_INSECURE=true \
+                            aquasec/trivy:latest image \
+                            --severity HIGH,CRITICAL \
+                            --ignore-unfixed \
+                            --format json \
+                            --output /output/react-frontend-${COMMIT_ID}.json \
+                            --exit-code 1 \
+                            --image-src remote \
+                            ${CONTAINER_REGISTRY}/react-frontend:${COMMIT_ID}
+                        """
+                        }
+                        withCredentials([
+                            string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')
+                        ]){
+                        sh "/var/jenkins_home/trivy-to-github.issue.sh ${WORKSPACE}/react-frontend-${COMMIT_ID}.json"
+                        }
+                    }
+                }
+            } 
 
-        // }
+        }
 
         stage("Deploy Development"){
             when {
