@@ -1,5 +1,7 @@
 # BooksLib - DevSecOps Track A
 
+![simple-topology](./topo_simple.jpeg)
+
 ## Executive Summary
 
 Pada pengerjaan challenge Track A ini, saya berhasil membuat pipeline jenkins yang akan mendeploy aplikasi ke sebuah Cluster Kubernetes namun hanya baru pada environment staging. Jalur komunikasi antara Kubernetes dengan Jenkins sudah dilengkapi dengan Digital Certificate sehingga komunikasi ke Jenkins maupun Kubernetes sudah dienkripsi. Challenge ini saya kerjakan dengan menggunakan empat Virtual Machine berbasis fedora core os versi 44, yang berfungsi sebagai Kubernetes Control Plane Node, Kubernetes Worker Node, Jenkins, dan Container Registry. Service Jenkins dan Container Registry saya jalankan melalui Container sehingga kesulitan yang dihadapi banyak berhubungan dengan Volume Mounts dan File Permission karena Fedora Core OS cukup ketat keamanannya. Di akhir, pipeline yang saya buat berhasil mendeploy aplikasi ke Kubernetes Cluster yang saya buat.
